@@ -30,9 +30,7 @@ class XSubModule extends HTMLElement {
       this._root.innerHTML = render(this._message);
     }
     if (attr === 'ontap') {
-      console.log('ontap attr changed', newValue);
-      this._ontap = newValue;
-      this._root.onclick = this.ontap;
+      throw new Error(`Unexpected type ${typeof newValue} (1)`);
     }
   }
 
@@ -50,7 +48,9 @@ class XSubModule extends HTMLElement {
   }
 
   set ontap(newValue) {
-    console.log('ontap prop changed', newValue);
+    if (typeof newValue !== 'function') {
+      throw new Error(`Unexpected type ${typeof newValue} (2)`);
+    }
     this._ontap = newValue;
     this._root.onclick = this.ontap;
   }
