@@ -1,12 +1,15 @@
 /* global HTMLElement customElements */
 
-const render = message => `Message from submodule: ${message}`;
+const render = ({ message, time }) =>
+  `<p class=message>Message from submodule: ${message} (${time})</p>`;
 
 class XSubModule extends HTMLElement {
   constructor() {
     super();
-    this._message = 'init';
-    this._ontap = () => {
+    this.privates = {};
+    this.privates.message = 'init';
+    this.privates.time = '----';
+    this.privates.ontap = () => {
       console.log('init ontap callback');
     };
     const shadowRoot = this.attachShadow({ mode: 'open' });
@@ -14,45 +17,40 @@ class XSubModule extends HTMLElement {
       <style>
         .message { color: red }
       </style>
-      <div id=root class=message>${render(this.__message)}</div>
+      <div id=root>${render(this.privates)}</div>
     `;
-    this._root = shadowRoot.querySelector('#root');
-    this._root.onclick = this.ontap;
+    this.privates.root = shadowRoot.querySelector('#root');
+    this.privates.root.onclick = this.ontap;
   }
 
   static get observedAttributes() {
-    return ['message', 'ontap'];
+    return ['message', 'time', 'ontap'];
   }
 
   attributeChangedCallback(attr, oldValue, newValue) {
     if (attr === 'message') {
-      this._message = newValue;
-      this._root.innerHTML = render(this._message);
+      this.privates.message = newValue;
+      this.privates.root.innerHTML = render(this.privates);
+    }
+    if (attr === 'time') {
+      this.privates.time = newValue;
+      this.privates.root.innerHTML = render(this.privates);
     }
     if (attr === 'ontap') {
       throw new Error(`Unexpected type ${typeof newValue} (1)`);
     }
   }
 
-  get message() {
-    return this._message;
-  }
-
-  set message(newValue) {
-    this._message = newValue;
-    this._root.innerHTML = render(this._message);
-  }
-
   get ontap() {
-    return this._ontap;
+    return this.privates.ontap;
   }
 
   set ontap(newValue) {
     if (typeof newValue !== 'function') {
       throw new Error(`Unexpected type ${typeof newValue} (2)`);
     }
-    this._ontap = newValue;
-    this._root.onclick = this.ontap;
+    this.privates.ontap = newValue;
+    this.privates.root.onclick = this.ontap;
   }
 }
 customElements.define('x-sub-module', XSubModule);

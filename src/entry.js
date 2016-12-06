@@ -1,11 +1,12 @@
 /* global document window */
 import { patch } from 'incremental-dom';
 
-const render = ({ greet, ontap }) => (
+const render = ({ greet, time, ontap }) => (
   <div>
     <h1>{greet}</h1>
     <x-sub-module
       message={greet}
+      time={time}
       ontap={ontap}
     />
   </div>
@@ -14,8 +15,10 @@ const render = ({ greet, ontap }) => (
 const app = document.getElementById('app');
 patch(app, () => {
   const greet = 'Hi from incremental-dom';
+  const time = (new Date()).toISOString();
   render({
     greet,
+    time,
     ontap: () => window.alert(greet),
   });
 });
@@ -24,9 +27,11 @@ const updateButton = document.getElementById('update');
 updateButton.onclick = () => {
   patch(app, () => {
     const greet = 'Hello again';
+    const time = (new Date()).toISOString();
     render({
       greet,
-      ontap: greet,
+      time,
+      ontap: () => window.alert(greet),
     });
   });
 };
