@@ -19,7 +19,7 @@ class XSubModule extends HTMLElement {
     this.privates.ontap = () => {
       console.log('init ontap callback');
     };
-    const shadowRoot = this.attachShadow({ mode: 'close' });
+    const shadowRoot = this.attachShadow({ mode: 'closed' });
     shadowRoot.innerHTML = `
       <style>
         .message { color: red }

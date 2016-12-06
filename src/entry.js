@@ -10,6 +10,11 @@ const render = ({ greet, time, ontap }) => () => (
       time={time}
       ontap={ontap}
     />
+    <x-sub-module
+      message={greet}
+      time={time}
+      ontap={ontap}
+    />
   </div>
 );
 
