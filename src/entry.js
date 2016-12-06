@@ -4,7 +4,10 @@ import { patch } from 'incremental-dom';
 const render = ({ greet }) => (
   <div>
     <h1>{greet}</h1>
-    <x-sub-module message={greet}></x-sub-module>
+    <x-sub-module
+      message={greet}
+      ontap={() => window.alert(greet)}
+    />
   </div>
 );
 

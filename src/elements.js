@@ -6,6 +6,9 @@ class XSubModule extends HTMLElement {
   constructor() {
     super();
     this._message = 'init';
+    this._ontap = () => {
+      console.log('init ontap callback');
+    };
     const shadowRoot = this.attachShadow({ mode: 'open' });
     shadowRoot.innerHTML = `
       <style>
@@ -14,10 +17,11 @@ class XSubModule extends HTMLElement {
       <div id=root class=message>${render(this.__message)}</div>
     `;
     this._root = shadowRoot.querySelector('#root');
+    this._root.onclick = this.ontap;
   }
 
   static get observedAttributes() {
-    return ['message'];
+    return ['message', 'ontap'];
   }
 
   attributeChangedCallback(attr, oldValue, newValue) {
@@ -25,15 +29,30 @@ class XSubModule extends HTMLElement {
       this._message = newValue;
       this._root.innerHTML = render(this._message);
     }
+    if (attr === 'ontap') {
+      console.log('ontap attr changed', newValue);
+      this._ontap = newValue;
+      this._root.onclick = this.ontap;
+    }
   }
 
   get message() {
     return this._message;
   }
 
-  set message(value) {
-    this._message = value;
+  set message(newValue) {
+    this._message = newValue;
     this._root.innerHTML = render(this._message);
+  }
+
+  get ontap() {
+    return this._ontap;
+  }
+
+  set ontap(newValue) {
+    console.log('ontap prop changed', newValue);
+    this._ontap = newValue;
+    this._root.onclick = this.ontap;
   }
 }
 customElements.define('x-sub-module', XSubModule);
