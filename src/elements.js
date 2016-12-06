@@ -3,7 +3,11 @@
 import { patch } from 'incremental-dom';
 
 const render = ({ message, time }) => () => (
-  <p class="message">Message from submodule: {message} ({time})</p>
+  <div>
+    <p class="message">Message from submodule: {message} ({time})</p>
+    <p>Boring static text 1</p>
+    <p>Boring static text 2</p>
+  </div>
 );
 
 class XSubModule extends HTMLElement {
@@ -15,7 +19,7 @@ class XSubModule extends HTMLElement {
     this.privates.ontap = () => {
       console.log('init ontap callback');
     };
-    const shadowRoot = this.attachShadow({ mode: 'open' });
+    const shadowRoot = this.attachShadow({ mode: 'close' });
     shadowRoot.innerHTML = `
       <style>
         .message { color: red }
