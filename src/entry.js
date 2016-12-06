@@ -1,5 +1,6 @@
 /* global document window */
 import { patch } from 'incremental-dom';
+import './elements';
 
 const render = ({ greet, time, ontap }) => (
   <div>

@@ -1,7 +1,10 @@
 /* global HTMLElement customElements */
 
-const render = ({ message, time }) =>
-  `<p class=message>Message from submodule: ${message} (${time})</p>`;
+import { patch } from 'incremental-dom';
+
+const render = ({ message, time }) => (
+  <p class="message">Message from submodule: {message} ({time})</p>
+);
 
 class XSubModule extends HTMLElement {
   constructor() {
@@ -17,10 +20,11 @@ class XSubModule extends HTMLElement {
       <style>
         .message { color: red }
       </style>
-      <div id=root>${render(this.privates)}</div>
+      <div id=root></div>
     `;
     this.privates.root = shadowRoot.querySelector('#root');
     this.privates.root.onclick = this.ontap;
+    patch(this.privates.root, () => render(this.privates));
   }
 
   static get observedAttributes() {
@@ -30,11 +34,11 @@ class XSubModule extends HTMLElement {
   attributeChangedCallback(attr, oldValue, newValue) {
     if (attr === 'message') {
       this.privates.message = newValue;
-      this.privates.root.innerHTML = render(this.privates);
+      patch(this.privates.root, () => render(this.privates));
     }
     if (attr === 'time') {
       this.privates.time = newValue;
-      this.privates.root.innerHTML = render(this.privates);
+      patch(this.privates.root, () => render(this.privates));
     }
     if (attr === 'ontap') {
       throw new Error(`Unexpected type ${typeof newValue} (1)`);
