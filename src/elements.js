@@ -1,66 +1,65 @@
-/* global HTMLElement customElements */
+/* global HTMLElement customElements CustomEvent csjs */
 
 import { patch } from 'incremental-dom';
-
-const render = ({ message, time }) => () => (
-  <div>
-    <p class="message">Message from submodule: {message} ({time})</p>
-    <p>Boring static text 1</p>
-    <p>Boring static text 2</p>
-  </div>
-);
 
 class XSubModule extends HTMLElement {
   constructor() {
     super();
-    this.privates = {};
-    this.privates.message = 'init';
-    this.privates.time = '----';
-    this.privates.ontap = () => {
-      console.log('init ontap callback');
+    this.locals = {
+      connected: false,
+      shadowRoot: this.attachShadow({ mode: 'closed' }),
     };
-    const shadowRoot = this.attachShadow({ mode: 'closed' });
-    shadowRoot.innerHTML = `
-      <style>
-        .message { color: red }
-      </style>
-      <div id=root></div>
-    `;
-    this.privates.root = shadowRoot.querySelector('#root');
-    this.privates.root.onclick = this.ontap;
-    patch(this.privates.root, render(this.privates));
+    this.onclick = () => {
+      const tapEvent = new CustomEvent('tap');
+      this.dispatchEvent(tapEvent);
+    };
+  }
+
+  updateShadow() {
+    if (!this.locals.connected) return;
+
+    patch(this.locals.shadowRoot, ({ message, time }) => (
+      <div>
+        <style>
+          {`
+            .message { color: red }
+          `}
+        </style>
+        <div>
+          <p class="message">Message fromx submodule: {message} ({time})</p>
+          <p>Boring static text 1</p>
+          <p>Boring static text 2</p>
+        </div>
+      </div>
+    ), this.locals);
+  }
+
+  connectedCallback() {
+    this.locals.connected = true;
+  }
+
+  disconnectedCallback() {
+    this.locals.connected = false;
   }
 
   static get observedAttributes() {
-    return ['message', 'time', 'ontap'];
+    return ['message', 'time'];
   }
 
   attributeChangedCallback(attr, oldValue, newValue) {
-    if (attr === 'message') {
-      this.privates.message = newValue;
-      console.log('xxx patched from message');
-      patch(this.privates.root, render(this.privates));
-    }
-    if (attr === 'time') {
-      this.privates.time = newValue;
-      console.log('xxx patched from time');
-      patch(this.privates.root, render(this.privates));
-    }
-    if (attr === 'ontap') {
-      throw new Error(`Unexpected type ${typeof newValue} (1)`);
-    }
+    this.locals[attr] = newValue;
+    this.updateShadow();
   }
 
   get ontap() {
-    return this.privates.ontap;
+    return this.locals.ontap;
   }
 
   set ontap(newValue) {
-    if (typeof newValue !== 'function') {
-      throw new Error(`Unexpected type ${typeof newValue} (2)`);
-    }
-    this.privates.ontap = newValue;
-    this.privates.root.onclick = this.ontap;
+    this.removeEventListener('tap', this.locals.ontap);
+    this.locals.ontap = newValue;
+    this.addEventListener('tap', this.locals.ontap);
   }
 }
+
 customElements.define('x-sub-module', XSubModule);

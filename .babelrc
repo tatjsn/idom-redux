@@ -1,3 +1,8 @@
 {
-  "plugins": ["transform-incremental-dom"]
+  "plugins": [[
+    "transform-incremental-dom", {
+      "inlineExpressions": true,
+      "fastRoot": true
+    }
+  ]]
 }
